@@ -54,7 +54,7 @@ const generate = async (props: GenerateProps) => {
       pdfDoc,
     });
     const schemaNames = [
-      ...new Set(dynamicTemplate.schemas.flatMap((page) => page.map((schema) => schema.name))),
+      ...new Set(dynamicTemplate.schemas.map((page) => page.map((schema) => schema.name))),
     ];
 
     for (let j = 0; j < basePages.length; j += 1) {
