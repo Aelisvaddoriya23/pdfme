@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.esm",
   "compilerOptions": {
+    "strict": true,
     "outDir": "./dist",
     "paths": {
       "@pdfme/common": [

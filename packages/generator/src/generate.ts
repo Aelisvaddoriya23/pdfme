@@ -91,7 +91,7 @@ const generate = async (props: GenerateProps) => {
       for (let l = 0; l < schemaNames.length; l += 1) {
         const name = schemaNames[l];
         const schemaPage = dynamicTemplate.schemas[j] || [];
-        const schema = schemaPage.find((s) => s.name == name);
+        const schema = schemaPage.find((s) => Array.isArray(name) ? name.includes(s.name) : s.name === name);
         if (!schema) {
           continue;
         }
@@ -101,13 +101,14 @@ const generate = async (props: GenerateProps) => {
           continue;
         }
         const value = schema.readOnly
-          ? replacePlaceholders({
-              content: schema.content || '',
-              variables: { ...input, totalPages: basePages.length, currentPage: j + 1 },
-              schemas: dynamicTemplate.schemas,
-            })
-          : input[name] || '';
-
+        ? replacePlaceholders({
+            content: schema.content || '',
+            variables: { ...input, totalPages: basePages.length, currentPage: j + 1 },
+            schemas: dynamicTemplate.schemas,
+          })
+        : Array.isArray(name)
+        ? name.map((n) => input[n] || '').join(', ') // Combine values for all names in the array
+        : input[name] || ''; // Use the value of the single name key
         await render({ value, schema, basePdf, pdfLib, pdfDoc, page, options, _cache });
       }
     }
