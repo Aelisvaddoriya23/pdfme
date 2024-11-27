@@ -30,11 +30,11 @@
       "require": "./dist/cjs/src/index.js",
       "types": "./dist/types/src/index.d.ts"
     },
-    "./utils": {
-      "import": "./dist/esm/src/utils.js",
-      "require": "./dist/cjs/src/utils.js",
-      "types": "./dist/types/src/utils.d.ts"
-    }
+   "./*": {
+    "import": "./dist/esm/src/*.js",
+    "require": "./dist/cjs/src/*.js",
+    "types": "./dist/types/src/*.d.ts"
+  }
   },
   "scripts": {
     "dev": "tsc -p tsconfig.esm.json -w",
