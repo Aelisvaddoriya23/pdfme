@@ -90,7 +90,7 @@ const generate = async (props: GenerateProps) => {
         }
       }
       fs.writeFileSync(
-        `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo2.pdf`,
+        `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo2.txt`,
         pdfDoc.saveAsBase64()
       );
       for (let l = 0; l < schemaNames.length; l += 1) {
