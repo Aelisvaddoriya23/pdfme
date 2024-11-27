@@ -56,7 +56,7 @@ export const preprocessing = async (arg) => {
     const pluginValues = (Object.values(userPlugins).length > 0
         ? Object.values(userPlugins)
         : Object.values(builtInPlugins));
-    const schemaTypes = schemas.map(schemaPage => schemaPage.map((schema) => schema.type)).flat();
+    const schemaTypes = schemas.map(schemaPage => schemaPage.map((schema) => schema.type)).reduce((acc, types) => acc.concat(types), []);
     const renderObj = schemaTypes.reduce((acc, type) => {
         const render = pluginValues.find((pv) => pv.propPanel.defaultSchema.type === type);
         if (!render) {

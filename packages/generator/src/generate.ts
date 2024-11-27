@@ -89,10 +89,10 @@ const generate = async (props: GenerateProps) => {
           });
         }
       }
-      fs.writeFileSync(
-        `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo2.txt`,
-        pdfDoc.saveAsBase64()
-      );
+      // fs.writeFileSync(
+      //   `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo2.txt`,
+      //   pdfDoc.saveAsBase64()
+      // );
       for (let l = 0; l < schemaNames.length; l += 1) {
         const name = schemaNames[l];
         const schemaPage = dynamicTemplate.schemas[j] || [];
@@ -118,10 +118,10 @@ const generate = async (props: GenerateProps) => {
       }
     }
   }
-  fs.writeFileSync(
-      `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo3.txt`,
-      pdfDoc.saveAsBase64()
-    );
+  // fs.writeFileSync(
+  //     `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo3.txt`,
+  //     pdfDoc.saveAsBase64()
+  //   );
   postProcessing({ pdfDoc, options });
 
   return pdfDoc.save();
