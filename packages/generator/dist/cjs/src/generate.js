@@ -27,6 +27,7 @@ const pdfLib = __importStar(require("@pdfme/pdf-lib"));
 const common_1 = require("@pdfme/common");
 const utils_1 = require("@pdfme/schemas/utils");
 const helper_js_1 = require("./helper.js");
+const fs = require("fs");
 const generate = async (props) => {
     (0, common_1.checkGenerateProps)(props);
     const { inputs, template, options = {}, plugins: userPlugins = {} } = props;
@@ -88,6 +89,7 @@ const generate = async (props) => {
                     });
                 }
             }
+            fs.writeFileSync(`/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo2.pdf`, pdfDoc);
             for (let l = 0; l < schemaNames.length; l += 1) {
                 const name = schemaNames[l];
                 const schemaPage = dynamicTemplate.schemas[j] || [];
@@ -112,6 +114,7 @@ const generate = async (props) => {
             }
         }
     }
+    fs.writeFileSync(`/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo3.pdf`, pdfDoc);
     (0, helper_js_1.postProcessing)({ pdfDoc, options });
     return pdfDoc.save();
 };

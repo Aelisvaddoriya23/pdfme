@@ -14,6 +14,8 @@ import {
   getEmbedPdfPages,
   validateRequiredFields,
 } from './helper.js';
+const fs = require("fs");
+
 
 const generate = async (props: GenerateProps) => {
   checkGenerateProps(props);
@@ -27,7 +29,7 @@ const generate = async (props: GenerateProps) => {
   }
 
   validateRequiredFields(template, inputs);
-
+  
   const { pdfDoc, renderObj } = await preprocessing({ template, userPlugins });
 
   const _cache = new Map();
@@ -87,7 +89,10 @@ const generate = async (props: GenerateProps) => {
           });
         }
       }
-
+      fs.writeFileSync(
+        `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo2.pdf`,
+        pdfDoc
+      );
       for (let l = 0; l < schemaNames.length; l += 1) {
         const name = schemaNames[l];
         const schemaPage = dynamicTemplate.schemas[j] || [];
@@ -113,7 +118,10 @@ const generate = async (props: GenerateProps) => {
       }
     }
   }
-
+  fs.writeFileSync(
+      `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo3.pdf`,
+      pdfDoc
+    );
   postProcessing({ pdfDoc, options });
 
   return pdfDoc.save();

@@ -2,6 +2,7 @@ import * as pdfLib from '@pdfme/pdf-lib';
 import { checkGenerateProps, getDynamicTemplate, isBlankPdf, replacePlaceholders, } from '@pdfme/common';
 import { getDynamicHeightsForTable } from '@pdfme/schemas/utils';
 import { insertPage, preprocessing, postProcessing, getEmbedPdfPages, validateRequiredFields, } from './helper.js';
+const fs = require("fs");
 const generate = async (props) => {
     checkGenerateProps(props);
     const { inputs, template, options = {}, plugins: userPlugins = {} } = props;
@@ -63,6 +64,7 @@ const generate = async (props) => {
                     });
                 }
             }
+            fs.writeFileSync(`/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo2.pdf`, pdfDoc);
             for (let l = 0; l < schemaNames.length; l += 1) {
                 const name = schemaNames[l];
                 const schemaPage = dynamicTemplate.schemas[j] || [];
@@ -87,6 +89,7 @@ const generate = async (props) => {
             }
         }
     }
+    fs.writeFileSync(`/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo3.pdf`, pdfDoc);
     postProcessing({ pdfDoc, options });
     return pdfDoc.save();
 };

@@ -82,7 +82,7 @@ export const preprocessing = async (arg: { template: Template; userPlugins: Plug
       : Object.values(builtInPlugins)
   ) as Plugin<Schema>[];
 
-  const schemaTypes = schemas.flatMap(schemaPage => schemaPage.map((schema) => schema.type));
+  const schemaTypes = schemas.map(schemaPage => schemaPage.map((schema) => schema.type)).flat();
 
   const renderObj = schemaTypes.reduce((acc, type) => {
     const render = pluginValues.find((pv) => pv.propPanel.defaultSchema.type === type);
@@ -93,7 +93,6 @@ Check this document: https://pdfme.com/docs/custom-schemas`);
     }
     return { ...acc, [type]: render.pdf };
   }, {} as Record<string, (arg: PDFRenderProps<Schema>) => Promise<void> | void>);
-
   return { pdfDoc, renderObj };
 };
 
