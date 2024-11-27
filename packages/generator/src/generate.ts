@@ -29,7 +29,7 @@ const generate = async (props: GenerateProps) => {
   }
 
   validateRequiredFields(template, inputs);
-  
+
   const { pdfDoc, renderObj } = await preprocessing({ template, userPlugins });
 
   const _cache = new Map();
@@ -91,7 +91,7 @@ const generate = async (props: GenerateProps) => {
       }
       fs.writeFileSync(
         `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo2.pdf`,
-        pdfDoc
+        pdfDoc.saveAsBase64()
       );
       for (let l = 0; l < schemaNames.length; l += 1) {
         const name = schemaNames[l];
@@ -119,8 +119,8 @@ const generate = async (props: GenerateProps) => {
     }
   }
   fs.writeFileSync(
-      `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo3.pdf`,
-      pdfDoc
+      `/Users/icanstudiozmac1/Documents/whatsapp-api/whatsapp-api/assets/baseDemo3.txt`,
+      pdfDoc.saveAsBase64()
     );
   postProcessing({ pdfDoc, options });
 
