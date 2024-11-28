@@ -70,6 +70,7 @@ const constants_js_1 = require("./constants.js");
 //   }
 //   return { basePages, embedPdfBoxes };
 // };
+const pdfjs_dist_1 = require("pdfjs-dist");
 const getEmbedPdfPages = async (arg) => {
     const { template: { schemas, basePdf }, pdfDoc, } = arg;
     let basePages = [];
@@ -78,11 +79,7 @@ const getEmbedPdfPages = async (arg) => {
         const { width: _width, height: _height } = basePdf;
         const width = (0, common_1.mm2pt)(_width);
         const height = (0, common_1.mm2pt)(_height);
-        basePages = schemas.map(() => {
-            const page = pdf_lib_1.PDFPage.create(pdfDoc);
-            page.setSize(width, height);
-            return page;
-        });
+        basePages = schemas.map(() => pdfDoc.addPage([width, height]));
         embedPdfBoxes = schemas.map(() => ({
             mediaBox: { x: 0, y: 0, width, height },
             bleedBox: { x: 0, y: 0, width, height },
@@ -90,36 +87,31 @@ const getEmbedPdfPages = async (arg) => {
         }));
     }
     else {
-        const willLoadPdf = typeof basePdf === 'string' ? await (0, common_1.getB64BasePdf)(basePdf) : basePdf;
-        const embedPdf = await pdf_lib_1.PDFDocument.load(willLoadPdf);
-        const embedPdfPages = embedPdf.getPages();
-        // Step 1: Extract annotations from the original pages
-        const annotations = embedPdfPages.map((page) => page.node?.Annots || []);
-        // Prepare bounding boxes and transformation matrices for embedding
-        const boundingBoxes = embedPdfPages.map((p) => {
-            const { x, y, width, height } = p.getMediaBox();
-            return { left: x, bottom: y, right: width, top: height + y };
-        });
-        const transformationMatrices = embedPdfPages.map(() => [1, 0, 0, 1, 0, 0]);
-        // Step 2: Embed pages into the new PDF
+        const loadingTask = (0, pdfjs_dist_1.getDocument)({ data: basePdf });
+        const embedPdf = await loadingTask.promise;
+        const embedPdfPages = [];
+        const boundingBoxes = [];
+        const transformationMatrices = [];
+        for (let i = 1; i <= embedPdf.numPages; i++) {
+            const page = await embedPdf.getPage(i);
+            const viewport = page.getViewport({ scale: 1.0 });
+            const { width, height } = viewport;
+            const x = 0;
+            const y = 0;
+            embedPdfBoxes.push({
+                mediaBox: { x, y, width, height },
+                bleedBox: { x, y, width, height },
+                trimBox: { x, y, width, height },
+            });
+            // Collect data for embedding
+            const boundingBox = { left: x, bottom: y, right: width, top: height };
+            boundingBoxes.push(boundingBox);
+            transformationMatrices.push([1, 0, 0, 1, 0, 0]);
+            // Add the page to the array
+            embedPdfPages.push(page);
+        }
+        // Embed pages into the PDF document
         basePages = await pdfDoc.embedPages(embedPdfPages, boundingBoxes, transformationMatrices);
-        // Step 3: Reapply annotations to the embedded pages
-        basePages.forEach((page, index) => {
-            // Check if it's a PDFPage and has a `node` property
-            if ('node' in page) {
-                const pageNode = page.node;
-                const pageAnnotations = annotations[index];
-                if (pageAnnotations) {
-                    pageNode.Annots = pageAnnotations; // Reapply annotations
-                }
-            }
-        });
-        // Create embed boxes for the embedded pages
-        embedPdfBoxes = embedPdfPages.map((p) => ({
-            mediaBox: p.getMediaBox(),
-            bleedBox: p.getBleedBox(),
-            trimBox: p.getTrimBox(),
-        }));
     }
     return { basePages, embedPdfBoxes };
 };

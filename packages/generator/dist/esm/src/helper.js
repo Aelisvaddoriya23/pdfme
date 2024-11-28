@@ -1,7 +1,7 @@
 import * as fontkit from 'fontkit';
-import { getB64BasePdf, isBlankPdf, mm2pt, } from '@pdfme/common';
+import { isBlankPdf, mm2pt, } from '@pdfme/common';
 import { builtInPlugins } from '@pdfme/schemas';
-import { PDFPage, PDFDocument, PDFEmbeddedPage } from '@pdfme/pdf-lib';
+import { PDFDocument, PDFEmbeddedPage } from '@pdfme/pdf-lib';
 import { TOOL_NAME } from './constants.js';
 // export const getEmbedPdfPages = async (arg: { template: Template; pdfDoc: PDFDocument }) => {
 //   const {
@@ -44,6 +44,7 @@ import { TOOL_NAME } from './constants.js';
 //   }
 //   return { basePages, embedPdfBoxes };
 // };
+import { getDocument } from 'pdfjs-dist';
 export const getEmbedPdfPages = async (arg) => {
     const { template: { schemas, basePdf }, pdfDoc, } = arg;
     let basePages = [];
@@ -52,11 +53,7 @@ export const getEmbedPdfPages = async (arg) => {
         const { width: _width, height: _height } = basePdf;
         const width = mm2pt(_width);
         const height = mm2pt(_height);
-        basePages = schemas.map(() => {
-            const page = PDFPage.create(pdfDoc);
-            page.setSize(width, height);
-            return page;
-        });
+        basePages = schemas.map(() => pdfDoc.addPage([width, height]));
         embedPdfBoxes = schemas.map(() => ({
             mediaBox: { x: 0, y: 0, width, height },
             bleedBox: { x: 0, y: 0, width, height },
@@ -64,36 +61,31 @@ export const getEmbedPdfPages = async (arg) => {
         }));
     }
     else {
-        const willLoadPdf = typeof basePdf === 'string' ? await getB64BasePdf(basePdf) : basePdf;
-        const embedPdf = await PDFDocument.load(willLoadPdf);
-        const embedPdfPages = embedPdf.getPages();
-        // Step 1: Extract annotations from the original pages
-        const annotations = embedPdfPages.map((page) => page.node?.Annots || []);
-        // Prepare bounding boxes and transformation matrices for embedding
-        const boundingBoxes = embedPdfPages.map((p) => {
-            const { x, y, width, height } = p.getMediaBox();
-            return { left: x, bottom: y, right: width, top: height + y };
-        });
-        const transformationMatrices = embedPdfPages.map(() => [1, 0, 0, 1, 0, 0]);
-        // Step 2: Embed pages into the new PDF
+        const loadingTask = getDocument({ data: basePdf });
+        const embedPdf = await loadingTask.promise;
+        const embedPdfPages = [];
+        const boundingBoxes = [];
+        const transformationMatrices = [];
+        for (let i = 1; i <= embedPdf.numPages; i++) {
+            const page = await embedPdf.getPage(i);
+            const viewport = page.getViewport({ scale: 1.0 });
+            const { width, height } = viewport;
+            const x = 0;
+            const y = 0;
+            embedPdfBoxes.push({
+                mediaBox: { x, y, width, height },
+                bleedBox: { x, y, width, height },
+                trimBox: { x, y, width, height },
+            });
+            // Collect data for embedding
+            const boundingBox = { left: x, bottom: y, right: width, top: height };
+            boundingBoxes.push(boundingBox);
+            transformationMatrices.push([1, 0, 0, 1, 0, 0]);
+            // Add the page to the array
+            embedPdfPages.push(page);
+        }
+        // Embed pages into the PDF document
         basePages = await pdfDoc.embedPages(embedPdfPages, boundingBoxes, transformationMatrices);
-        // Step 3: Reapply annotations to the embedded pages
-        basePages.forEach((page, index) => {
-            // Check if it's a PDFPage and has a `node` property
-            if ('node' in page) {
-                const pageNode = page.node;
-                const pageAnnotations = annotations[index];
-                if (pageAnnotations) {
-                    pageNode.Annots = pageAnnotations; // Reapply annotations
-                }
-            }
-        });
-        // Create embed boxes for the embedded pages
-        embedPdfBoxes = embedPdfPages.map((p) => ({
-            mediaBox: p.getMediaBox(),
-            bleedBox: p.getBleedBox(),
-            trimBox: p.getTrimBox(),
-        }));
     }
     return { basePages, embedPdfBoxes };
 };
