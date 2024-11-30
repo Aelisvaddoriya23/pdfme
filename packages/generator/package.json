@@ -25,10 +25,10 @@
   "module": "./dist/esm/src/index.js",
   "types": "./src/index.d.ts",
   "exports": {
-    ".": {
-      "import": "./dist/esm/src/index.js",
-      "require": "./dist/cjs/src/index.js",
-      "types": "./dist/types/src/index.d.ts"
+    "./*": {
+      "import": "./dist/esm/src/*.js",
+      "require": "./dist/cjs/src/*.js",
+      "types": "./dist/types/src/*.d.ts"
     }
   },
   "scripts": {
