@@ -58,7 +58,7 @@ import type { EmbedPdfBox } from './types';
 //   return { basePages, embedPdfBoxes };
 // };
 
-import { getDocument } from 'pdfjs-dist';
+const  pdfjsLib  =  require('pdfjs-dist');
 export const getEmbedPdfPages = async (arg: { template: Template; pdfDoc: PDFDocument }) => {
   const {
     template: { schemas, basePdf },
@@ -80,7 +80,7 @@ export const getEmbedPdfPages = async (arg: { template: Template; pdfDoc: PDFDoc
       trimBox: { x: 0, y: 0, width, height },
     }));
   } else {
-    const loadingTask = getDocument({ data: basePdf });
+    const loadingTask = pdfjsLib.getDocument({ data: basePdf });
     const embedPdf = await loadingTask.promise;
 
     const embedPdfPages: any[] = [];
